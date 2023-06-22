@@ -11,7 +11,7 @@ setup(
     description='Django DRF OIDC Auth library: Securely authenticate users using OIDC in Django DRF. Supports Code Flow and Code Flow With PKCE. Easy integration with React Js or any front-end framework.',
     long_description="this library is perfect if you want to authenticat user using seperate front-end like React js with django and use the OIDC access token to authrize apis created in DRF",
     long_description_content_type='text/markdown',
-    url='https://github.com/your-username/my-oidc-auth',
+    url='https://github.com/halmogbl/oidc_drf',
     packages=find_packages(),
     classifiers=[
         'Development Status :: 4 - Beta',
