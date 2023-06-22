@@ -1,4 +1,3 @@
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 from django.contrib import auth
 from rest_framework.permissions import AllowAny
@@ -9,11 +8,11 @@ from urllib.parse import urlencode
 from django.utils.crypto import get_random_string
 from oidc_drf.utils import import_from_settings
 import requests
-import json
+
 
 from  oidc_drf.utils import generate_code_challenge
 
-class GenerateOIDCAuthenticationUrlView(APIView):
+class OIDCGenerateAuthenticationUrlView(APIView):
     permission_classes = [AllowAny]    
     def get(self, request):
 
@@ -73,7 +72,6 @@ class GenerateOIDCAuthenticationUrlView(APIView):
             "oidc_states":oidc_states,
             } )
 
-
 class OIDCAuthenticationCallbackView(APIView):
     """OIDC client authentication callback HTTP endpoint"""
     permission_classes = [AllowAny]    
@@ -131,18 +129,13 @@ class OIDCAuthenticationCallbackView(APIView):
         
         return self.login_failure()
 
-class Logout(APIView):
+class OIDCLogoutView(APIView):
     permission_classes = [AllowAny]    
 
     def post(self, request):     
         oidc_id_token = request.data.get('oidcIdToken', '')
-        refresh_token = request.data.get('refreshToken', '')
     
-        if refresh_token and oidc_id_token == "" :
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return JsonResponse({'message': 'Logout successful'})
-        elif refresh_token and oidc_id_token:
+        if oidc_id_token:
             
             logout_endpoint = import_from_settings("OIDC_OP_LOGOUT_ENDPOINT", "")
             post_logout_redirect_uri = import_from_settings("OIDC_LOGOUT_REDIRECT_URL", "http://localhost:3000")
@@ -168,9 +161,9 @@ class Logout(APIView):
             if response.status_code == 204 or response.status_code == 200:
                 return JsonResponse({'message': 'Logout OIDC successful'}, status=response.status_code)
             
-        return JsonResponse({'message': 'Logout faild'})
+        return Response({"error":"missing oidcIdToken field"}, status=status.HTTP_400_BAD_REQUEST)    
 
-class RefreshSSO(APIView):
+class OIDCRefreshTokenView(APIView):
     permission_classes = [AllowAny]    
 
     def post(self, request):     

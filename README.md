@@ -1,5 +1,6 @@
 python setup.py sdist bdist_wheel
 pip install twine
+twine check dist/*
 twine upload dist/*
 
 # OIDC Library
@@ -13,6 +14,9 @@ pip install my-oidc-auth
 
 
 Add `'oidc_drf'` to the `INSTALLED_APPS` list in your Django project's settings:
+
+╰─ python manage.py makemigrations
+╰─ python manage.py migrate
 
 Configure the following settings in your Django project's settings module:
 
@@ -46,4 +50,17 @@ REST_FRAMEWORK = {
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
     'oidc_drf.backends.OIDCAuthenticationBackend',
+]
+
+
+
+Add routing to urls.py
+Next, edit your urls.py and add the following:
+
+from django.urls import path, include
+
+urlpatterns = [
+    # ...
+    path('oidc/', include('oidc_drf.views.urls')),
+    # ...
 ]
