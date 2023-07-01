@@ -84,6 +84,8 @@ urlpatterns = [
 
 ```
 
+finnaly run the migrations commands
+
 ```bash
 
 python3 manage.py makemigrations
