@@ -128,7 +128,7 @@ The REST API to the example app is described below.
             "nonce": "Pgsq3IlSLumPca81YjXc8ut03Oz7bPHA",
             "code_verifier": "cNa9FYCujvVibPnosk1Fk3wvPPisaTjE8Ns83X0UcGsNlEfIUc3j49hFftYPEGAb"
     }'
-    ### Response
+### Response
 
     Status: 200 OK
     {
@@ -150,7 +150,7 @@ The REST API to the example app is described below.
         "refresh": "jwt refresh token",
         "code_verifier": "cNa9FYCujvVibPnosk1Fk3wvPPisaTjE8Ns83X0UcGsNlEfIUc3j49hFftYPEGAb"
         }'
-    ### Response
+### Response
 
     Status: 200 OK
     {
@@ -168,7 +168,7 @@ The REST API to the example app is described below.
     curl --location 'http://localhost:8000/api/v1/oidc/logout' \
     --header 'Authorization: Bearer jwt access token'
 
-    ### Response
+### Response
 
     Status: 200 OK
     {
