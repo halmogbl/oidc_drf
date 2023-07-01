@@ -68,8 +68,11 @@ AUTHENTICATION_BACKENDS = [
 
 
 
-Add routing to urls.py
+```
+
 Next, edit your urls.py and add the following:
+
+```python
 
 from django.urls import path, include
 
