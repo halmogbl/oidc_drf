@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.contrib import auth
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -83,25 +83,18 @@ class OIDCAuthenticationCallbackView(APIView):
     def login_success(self):        
 
         oidc_access_token = self.request.session["oidc_access_token"]
-        oidc_id_token = self.request.session["oidc_id_token"]
+        # oidc_id_token = self.request.session["oidc_id_token"]
         oidc_refresh_token = self.request.session["oidc_refresh_token"]
         
         data = {
             'access': str(oidc_access_token),
             'refresh': str(oidc_refresh_token),
-            'oidc_id_token': str(oidc_id_token),
+            # 'oidc_id_token': str(oidc_id_token),
         } 
         
-        
-        if not import_from_settings("OIDC_STORE_ACCESS_TOKEN", False):
-            del self.request.session["oidc_access_token"]
-
-        if not import_from_settings("OIDC_STORE_ID_TOKEN", False):
-            del self.request.session["oidc_id_token"]
-
-        if not import_from_settings("OIDC_STORE_REFRESH_TOKEN", False):
-            del self.request.session["oidc_refresh_token"]
-        
+        del self.request.session["oidc_access_token"]
+        # del self.request.session["oidc_id_token"]
+        del self.request.session["oidc_refresh_token"]
         self.request.session.save()
 
            
@@ -130,11 +123,10 @@ class OIDCAuthenticationCallbackView(APIView):
         return self.login_failure()
 
 class OIDCLogoutView(APIView):
-    permission_classes = [AllowAny]    
-
-    def post(self, request):     
-        oidc_id_token = request.data.get('oidcIdToken', '')
+    permission_classes = [IsAuthenticated]    
     
+    def get(self, request):     
+        oidc_id_token = request.user.oidcextradata.id_token
         if oidc_id_token:
             
             logout_endpoint = import_from_settings("OIDC_OP_LOGOUT_ENDPOINT", "")
@@ -161,7 +153,7 @@ class OIDCLogoutView(APIView):
             if response.status_code == 204 or response.status_code == 200:
                 return JsonResponse({'message': 'Logout OIDC successful'}, status=response.status_code)
             
-        return Response({"error":"missing oidcIdToken field"}, status=status.HTTP_400_BAD_REQUEST)    
+        return Response({"error":"user has not id token !!"}, status=status.HTTP_400_BAD_REQUEST)    
 
 class OIDCRefreshTokenView(APIView):
     permission_classes = [AllowAny]    
@@ -198,13 +190,13 @@ class OIDCRefreshTokenView(APIView):
                 return JsonResponse(error_data, status=response.status_code)
             
             oidc_access_token = json_data.get("access_token")
-            oidc_id_token = json_data.get("id_token")
+            # oidc_id_token = json_data.get("id_token")
             oidc_refresh_token = json_data.get("refresh_token")
             
             data = {
                 'access': str(oidc_access_token),
                 'refresh': str(oidc_refresh_token),
-                'oidc_id_token': str(oidc_id_token),
+                # 'oidc_id_token': str(oidc_id_token),
             }       
     
             return JsonResponse(data)

@@ -45,7 +45,7 @@ def get_oidc_backend():
         raise ImproperlyConfigured("More than one OIDCAuthenticationBackend found!")
     return backends[0]
 
-class CustomOIDCAuthentication(authentication.BaseAuthentication):
+class OIDCAuthentication(authentication.BaseAuthentication):
 
     def __init__(self, backend=None):
         self.backend = backend or get_oidc_backend()

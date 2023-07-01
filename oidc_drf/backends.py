@@ -109,7 +109,7 @@ class OIDCAuthenticationBackend(ModelBackend):
         payload = self.verify_token(id_token, nonce=nonce)
                 
         if payload:
-            self.store_tokens(access_token, id_token, refresh_token)
+            self.store_tokens(access_token, refresh_token)
             try:
                 return self.get_or_create_user(access_token, id_token, payload)
             except SuspiciousOperation as exc:
@@ -226,18 +226,19 @@ class OIDCAuthenticationBackend(ModelBackend):
         
         return user_json
     
-    def save_user_data(self,user, user_json):
+    def save_user_data(self,user, user_json,id_token):
         # Serialize the remaining user_json
         user_data = json.dumps(user_json)
 
         # Check if the user's OIDCExtraData already exists
         try:
             oidc_extra_data = user.oidcextradata
+            oidc_extra_data.id_token = id_token
             oidc_extra_data.data = user_data
             oidc_extra_data.save()
         except OIDCExtraData.DoesNotExist:
             # Create a new OIDCExtraData object for the user
-            oidc_extra_data = OIDCExtraData.objects.create(user=user, data=user_data)
+            oidc_extra_data = OIDCExtraData.objects.create(user=user, data=user_data, id_token=id_token)
 
 
     
@@ -258,7 +259,7 @@ class OIDCAuthenticationBackend(ModelBackend):
             
             if user_info and access_token and id_token:
                 user_json = self.create_user_json(user_info, access_token, id_token)
-                self.save_user_data(user, user_json)
+                self.save_user_data(user, user_json,id_token)
             return user
 
         elif len(users) > 1:
@@ -270,7 +271,7 @@ class OIDCAuthenticationBackend(ModelBackend):
             user = self.create_user(user_info)
             if user_info and access_token and id_token:
                 user_json = self.create_user_json(user_info, access_token, id_token)
-                self.save_user_data(user, user_json)
+                self.save_user_data(user, user_json,id_token)
 
 
             return user
@@ -405,10 +406,10 @@ class OIDCAuthenticationBackend(ModelBackend):
         response.raise_for_status()
         return response.json()
     
-    def store_tokens(self, access_token, id_token, refresh_token):
+    def store_tokens(self, access_token, refresh_token):
         """Store OIDC tokens."""
         session = self.request.session
         session["oidc_access_token"] = access_token
-        session["oidc_id_token"] = id_token
+        # session["oidc_id_token"] = id_token
         session["oidc_refresh_token"] = refresh_token
             
