@@ -226,19 +226,18 @@ class OIDCAuthenticationBackend(ModelBackend):
         
         return user_json
     
-    def save_user_data(self,user, user_json,id_token):
+    def save_user_data(self,user, user_json):
         # Serialize the remaining user_json
         user_data = json.dumps(user_json)
 
         # Check if the user's OIDCExtraData already exists
         try:
             oidc_extra_data = user.oidcextradata
-            oidc_extra_data.id_token = id_token
             oidc_extra_data.data = user_data
             oidc_extra_data.save()
         except OIDCExtraData.DoesNotExist:
             # Create a new OIDCExtraData object for the user
-            oidc_extra_data = OIDCExtraData.objects.create(user=user, data=user_data, id_token=id_token)
+            oidc_extra_data = OIDCExtraData.objects.create(user=user, data=user_data)
 
 
     
@@ -259,7 +258,7 @@ class OIDCAuthenticationBackend(ModelBackend):
             
             if user_info and access_token and id_token:
                 user_json = self.create_user_json(user_info, access_token, id_token)
-                self.save_user_data(user, user_json,id_token)
+                self.save_user_data(user, user_json)
             return user
 
         elif len(users) > 1:
@@ -271,7 +270,7 @@ class OIDCAuthenticationBackend(ModelBackend):
             user = self.create_user(user_info)
             if user_info and access_token and id_token:
                 user_json = self.create_user_json(user_info, access_token, id_token)
-                self.save_user_data(user, user_json,id_token)
+                self.save_user_data(user, user_json)
 
 
             return user

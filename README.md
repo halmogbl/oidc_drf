@@ -82,13 +82,13 @@ those settings are optional and populated with default values.
 OIDC_USE_NONCE = True # defalut true
 OIDC_USE_PKCE = True # defalut true
 
+OIDC_USERNAME_CLAIM = 'preferred_username' # defalut 'preferred_username'
 OIDC_RP_SIGN_ALGO = 'RS256' # defalut RS256
 OIDC_RP_SCOPES = 'openid email' # defalut openid email
 OIDC_RP_IDP_SIGN_KEY = None # defalut None
 OIDC_VERIFY_SSL = True # defalut True
 OIDC_TIMEOUT = None # defalut None
 OIDC_PROXY = None # defalut None
-OIDC_USERNAME_CLAIM = 'preferred_username' # defalut 'preferred_username'
 OIDC_USERNAME_ALGO = None # defalut None
 OIDC_USE_ENCODED_USERNAME = None # defalut None
 OIDC_CREATE_USER = True # defalut True
@@ -107,7 +107,7 @@ OIDC_FIELD_MAPPING = {
 ```
 
 # REST APIs
-The REST API to the example app is described below.
+The REST API to the OIDC DRF is described below.
 
 ## AUTH ENDPOINT
 
