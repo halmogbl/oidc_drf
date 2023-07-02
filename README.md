@@ -31,33 +31,6 @@ OIDC_OP_LOGOUT_ENDPOINT ='' # required
 OIDC_AUTHENTICATION_SSO_CALLBACK_URL = '' # required - identity provider will redirect you to this url after login
 OIDC_LOGOUT_REDIRECT_URL = '' # required - identity provider will redirect you to this url after logout
 
-
-# optional configrations
-OIDC_USE_NONCE = True # defalut true
-OIDC_USE_PKCE = True # defalut true
-
-OIDC_RP_SIGN_ALGO = 'RS256' # defalut RS256
-OIDC_RP_SCOPES = 'openid email' # defalut openid email
-OIDC_RP_IDP_SIGN_KEY = None # defalut None
-OIDC_VERIFY_SSL = True # defalut True
-OIDC_TIMEOUT = None # defalut None
-OIDC_PROXY = None # defalut None
-OIDC_USERNAME_CLAIM = 'preferred_username' # defalut 'preferred_username'
-OIDC_USERNAME_ALGO = None # defalut None
-OIDC_USE_ENCODED_USERNAME = None # defalut None
-OIDC_CREATE_USER = True # defalut True
-OIDC_VERIFY_KID = True # defalut True
-OIDC_ALLOW_UNSECURED_JWT = False # defalut False
-OIDC_TOKEN_USE_BASIC_AUTH = False # defalut False
-
-# you can map the info comming back from IDP to user model
-# defalut is {}
-OIDC_FIELD_MAPPING = {
-    'field_in_my_user_model': 'field_in_in_oidc',
-    'first_name': 'given_name',
-    'last_name': 'family_name',
-}
-
 # Django Rest Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -101,12 +74,39 @@ That's it, we're done!
 
 
 
+# EXTRA SETTINGS
+those settings are optional and populated with default values.
 
+```python
 
+OIDC_USE_NONCE = True # defalut true
+OIDC_USE_PKCE = True # defalut true
 
+OIDC_RP_SIGN_ALGO = 'RS256' # defalut RS256
+OIDC_RP_SCOPES = 'openid email' # defalut openid email
+OIDC_RP_IDP_SIGN_KEY = None # defalut None
+OIDC_VERIFY_SSL = True # defalut True
+OIDC_TIMEOUT = None # defalut None
+OIDC_PROXY = None # defalut None
+OIDC_USERNAME_CLAIM = 'preferred_username' # defalut 'preferred_username'
+OIDC_USERNAME_ALGO = None # defalut None
+OIDC_USE_ENCODED_USERNAME = None # defalut None
+OIDC_CREATE_USER = True # defalut True
+OIDC_VERIFY_KID = True # defalut True
+OIDC_ALLOW_UNSECURED_JWT = False # defalut False
+OIDC_TOKEN_USE_BASIC_AUTH = False # defalut False
 
-# REST API
+# you can map the info comming back from IDP to user model
+# defalut is {}
+OIDC_FIELD_MAPPING = {
+    'field_in_my_user_model': 'field_in_in_oidc',
+    'first_name': 'given_name',
+    'last_name': 'family_name',
+}
 
+```
+
+# REST APIs
 The REST API to the example app is described below.
 
 ## AUTH ENDPOINT
