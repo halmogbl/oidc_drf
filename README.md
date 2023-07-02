@@ -26,28 +26,38 @@ Configure the following settings in your Django project's settings module:
 
 ```python
 
-# OIDC settings
-OIDC_USE_NONCE = True #defalut true
-OIDC_USE_PKCE = True #defalut true
+OIDC_RP_CLIENT_ID = '' # required
+OIDC_RP_CLIENT_SECRET = '' # optional if public client 
+OIDC_OP_JWKS_ENDPOINT = None # defalut None
+OIDC_OP_AUTHORIZATION_ENDPOINT = ''# required
+OIDC_OP_TOKEN_ENDPOINT = ''# required
+OIDC_OP_USER_ENDPOINT = '' # required
+OIDC_OP_LOGOUT_ENDPOINT ='' # required
 
-OIDC_RP_SIGN_ALGO = 'RS256'
-OIDC_RP_SCOPES = 'openid email'
+OIDC_AUTHENTICATION_SSO_CALLBACK_URL = '' # required - identity provider will redirect you to this url after login
+OIDC_LOGOUT_REDIRECT_URL = '' # required - identity provider will redirect you to this url after logout
 
-OIDC_RP_CLIENT_ID = '' 
-OIDC_RP_CLIENT_SECRET = '' 
-OIDC_OP_JWKS_ENDPOINT = ''
-OIDC_OP_AUTHORIZATION_ENDPOINT = ''
-OIDC_OP_TOKEN_ENDPOINT = ''
-OIDC_OP_USER_ENDPOINT = ''
-OIDC_OP_LOGOUT_ENDPOINT =''
 
-#identity provider will redirect you to this url after login
-OIDC_AUTHENTICATION_SSO_CALLBACK_URL = '' 
+# optional configrations
+OIDC_USE_NONCE = True # defalut true
+OIDC_USE_PKCE = True # defalut true
 
-# identity provider will redirect you to this url after logout
-OIDC_LOGOUT_REDIRECT_URL = '' 
+OIDC_RP_SIGN_ALGO = 'RS256' # defalut RS256
+OIDC_RP_SCOPES = 'openid email' # defalut openid email
+OIDC_RP_IDP_SIGN_KEY = None # defalut None
+OIDC_VERIFY_SSL = True # defalut True
+OIDC_TIMEOUT = None # defalut None
+OIDC_PROXY = None # defalut None
+OIDC_USERNAME_CLAIM = 'preferred_username' # defalut 'preferred_username'
+OIDC_USERNAME_ALGO = None # defalut None
+OIDC_USE_ENCODED_USERNAME = None # defalut None
+OIDC_CREATE_USER = True # defalut True
+OIDC_VERIFY_KID = True # defalut True
+OIDC_ALLOW_UNSECURED_JWT = False # defalut False
+OIDC_TOKEN_USE_BASIC_AUTH = False # defalut False
 
 # you can map the info comming back from IDP to user model
+# defalut is {}
 OIDC_FIELD_MAPPING = {
     'field_in_my_user_model': 'field_in_in_oidc',
     'first_name': 'given_name',
@@ -139,8 +149,9 @@ The REST API to the example app is described below.
 
     Status: 200 OK
     {
-       "access":"jwt token",
-       "refresh":"jwt token"
+       "access":"jwt access token",
+       "refresh":"jwt refresh token",
+       "oidc_id_token":"jwt id token",
     }
 
 
@@ -162,7 +173,8 @@ The REST API to the example app is described below.
     Status: 200 OK
     {
        "access":"jwt access token",
-       "refresh":"jwt refresh token"
+       "refresh":"jwt refresh token",
+       "oidc_id_token":"jwt id token",
     }
 
 
@@ -170,10 +182,10 @@ The REST API to the example app is described below.
 
 ### Request
 
-`GET /oidc/logout/`
+`POST /oidc/logout/`
 
     curl --location 'http://localhost:8000/api/v1/oidc/logout' \
-    --header 'Authorization: Bearer jwt access token'
+    --data '{"oidc_id_token": "jwt id token"}'
 
 ### Response
 

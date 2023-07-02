@@ -83,17 +83,17 @@ class OIDCAuthenticationCallbackView(APIView):
     def login_success(self):        
 
         oidc_access_token = self.request.session["oidc_access_token"]
-        # oidc_id_token = self.request.session["oidc_id_token"]
+        oidc_id_token = self.request.session["oidc_id_token"]
         oidc_refresh_token = self.request.session["oidc_refresh_token"]
         
         data = {
             'access': str(oidc_access_token),
             'refresh': str(oidc_refresh_token),
-            # 'oidc_id_token': str(oidc_id_token),
+            'oidc_id_token': str(oidc_id_token),
         } 
         
         del self.request.session["oidc_access_token"]
-        # del self.request.session["oidc_id_token"]
+        del self.request.session["oidc_id_token"]
         del self.request.session["oidc_refresh_token"]
         self.request.session.save()
 
@@ -123,12 +123,12 @@ class OIDCAuthenticationCallbackView(APIView):
         return self.login_failure()
 
 class OIDCLogoutView(APIView):
-    permission_classes = [IsAuthenticated]    
-    
-    def get(self, request):     
-        oidc_id_token = request.user.oidcextradata.id_token
+    permission_classes = [AllowAny]    
+
+    def post(self, request):     
+        oidc_id_token = request.data.get('oidc_id_token', '')
         if oidc_id_token:
-            
+
             logout_endpoint = import_from_settings("OIDC_OP_LOGOUT_ENDPOINT", "")
             post_logout_redirect_uri = import_from_settings("OIDC_LOGOUT_REDIRECT_URL", "http://localhost:3000")
             
@@ -190,13 +190,13 @@ class OIDCRefreshTokenView(APIView):
                 return JsonResponse(error_data, status=response.status_code)
             
             oidc_access_token = json_data.get("access_token")
-            # oidc_id_token = json_data.get("id_token")
+            oidc_id_token = json_data.get("id_token")
             oidc_refresh_token = json_data.get("refresh_token")
             
             data = {
                 'access': str(oidc_access_token),
                 'refresh': str(oidc_refresh_token),
-                # 'oidc_id_token': str(oidc_id_token),
+                'oidc_id_token': str(oidc_id_token),
             }       
     
             return JsonResponse(data)

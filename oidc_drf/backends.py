@@ -51,7 +51,7 @@ class OIDCAuthenticationBackend(ModelBackend):
         self.OIDC_OP_JWKS_ENDPOINT = import_from_settings("OIDC_OP_JWKS_ENDPOINT", None)
         self.OIDC_RP_CLIENT_ID = import_from_settings("OIDC_RP_CLIENT_ID")
         self.OIDC_RP_CLIENT_SECRET = import_from_settings("OIDC_RP_CLIENT_SECRET","")
-        self.OIDC_RP_SIGN_ALGO = import_from_settings("OIDC_RP_SIGN_ALGO", "HS256")
+        self.OIDC_RP_SIGN_ALGO = import_from_settings("OIDC_RP_SIGN_ALGO", "RS256")
         self.OIDC_RP_IDP_SIGN_KEY = import_from_settings("OIDC_RP_IDP_SIGN_KEY", None)
 
         if self.OIDC_RP_SIGN_ALGO.startswith("RS") and (
@@ -109,7 +109,7 @@ class OIDCAuthenticationBackend(ModelBackend):
         payload = self.verify_token(id_token, nonce=nonce)
                 
         if payload:
-            self.store_tokens(access_token, refresh_token)
+            self.store_tokens(access_token, id_token, refresh_token)
             try:
                 return self.get_or_create_user(access_token, id_token, payload)
             except SuspiciousOperation as exc:
@@ -406,10 +406,10 @@ class OIDCAuthenticationBackend(ModelBackend):
         response.raise_for_status()
         return response.json()
     
-    def store_tokens(self, access_token, refresh_token):
+    def store_tokens(self, access_token, id_token, refresh_token):
         """Store OIDC tokens."""
         session = self.request.session
         session["oidc_access_token"] = access_token
-        # session["oidc_id_token"] = id_token
+        session["oidc_id_token"] = id_token
         session["oidc_refresh_token"] = refresh_token
             
