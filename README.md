@@ -1,3 +1,15 @@
+# Overview
+
+Django DRF OIDC Auth library Securely authenticate users using OIDC in Django DRF. 
+It Supports Code Flow and Code Flow With PKCE. Easy integration with React Js or any front-end framework.
+
+**Below**: *Screenshot from the django admin*
+
+![Screenshot1][django_admin_1]
+![Screenshot2][django_admin_2]
+![Screenshot3][django_admin_3]
+
+----
 # Installation
 
 Install using `pip`...
@@ -72,8 +84,7 @@ python3 manage.py migrate
 
 That's it, we're done!
 
-
-
+----
 # EXTRA SETTINGS
 those settings are optional and populated with default values.
 
@@ -107,6 +118,7 @@ OIDC_FIELD_MAPPING = {
 
 ```
 
+----
 # REST APIs
 The REST API to the OIDC DRF is described below.
 
@@ -192,5 +204,6 @@ The REST API to the OIDC DRF is described below.
 
 
 
-
-
+[django_admin_1]: https://ibb.co/0nxWSPf
+[django_admin_2]: https://ibb.co/LnBL4GB
+[django_admin_3]: https://ibb.co/gR0CrsN
