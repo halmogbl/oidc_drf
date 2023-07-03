@@ -91,12 +91,13 @@ OIDC_TIMEOUT = None # defalut None
 OIDC_PROXY = None # defalut None
 OIDC_USERNAME_ALGO = None # defalut None
 OIDC_USE_ENCODED_USERNAME = None # defalut None
-OIDC_CREATE_USER = True # defalut True
-OIDC_VERIFY_KID = True # defalut True
+OIDC_CREATE_USER = True # defalut True, Enables or disables automatic user creation during authentication
+OIDC_VERIFY_KID = True # defalut True 
 OIDC_ALLOW_UNSECURED_JWT = False # defalut False
+returning unsecured JWT tokens and RP wants to accept them.
 OIDC_TOKEN_USE_BASIC_AUTH = False # defalut False
 
-# you can map the info comming back from IDP to user model
+# you can map the info comming back fsrom IDP to user model
 # defalut is {}
 OIDC_FIELD_MAPPING = {
     'field_in_my_user_model': 'field_in_in_oidc',

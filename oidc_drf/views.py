@@ -77,29 +77,31 @@ class OIDCAuthenticationCallbackView(APIView):
     permission_classes = [AllowAny]    
 
     def login_failure(self):
-        return Response("login failure", status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail":"Login failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-    def login_success(self):        
+    def login_success(self):   
+        try:     
+            oidc_access_token = self.request.session["oidc_access_token"]
+            oidc_id_token = self.request.session["oidc_id_token"]
+            oidc_refresh_token = self.request.session["oidc_refresh_token"]
+            
+            data = {
+                'access': str(oidc_access_token),
+                'refresh': str(oidc_refresh_token),
+                'oidc_id_token': str(oidc_id_token),
+            } 
+            
+            del self.request.session["oidc_access_token"]
+            del self.request.session["oidc_id_token"]
+            del self.request.session["oidc_refresh_token"]
+            self.request.session.save()
 
-        oidc_access_token = self.request.session["oidc_access_token"]
-        oidc_id_token = self.request.session["oidc_id_token"]
-        oidc_refresh_token = self.request.session["oidc_refresh_token"]
-        
-        data = {
-            'access': str(oidc_access_token),
-            'refresh': str(oidc_refresh_token),
-            'oidc_id_token': str(oidc_id_token),
-        } 
-        
-        del self.request.session["oidc_access_token"]
-        del self.request.session["oidc_id_token"]
-        del self.request.session["oidc_refresh_token"]
-        self.request.session.save()
-
-           
-        return JsonResponse(data)
+            
+            return JsonResponse(data)
     
+        except:
+            return self.login_failure()
 
 
     def post(self, request):

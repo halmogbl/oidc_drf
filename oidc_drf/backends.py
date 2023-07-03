@@ -149,6 +149,11 @@ class OIDCAuthenticationBackend(ModelBackend):
 
         return True
 
+    def describe_user_by_claims(self, claims):
+        username_claim = import_from_settings("OIDC_USERNAME_CLAIM", "preferred_username")
+        username = claims.get(str(username_claim))
+        return "username {}".format(username)
+    
     def filter_users_by_claims(self, claims):
         """Return all users matching the specified username."""
 
@@ -271,8 +276,6 @@ class OIDCAuthenticationBackend(ModelBackend):
             if user_info and access_token and id_token:
                 user_json = self.create_user_json(user_info, access_token, id_token)
                 self.save_user_data(user, user_json)
-
-
             return user
         else:
             LOGGER.debug(
