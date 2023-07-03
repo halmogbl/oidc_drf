@@ -3,12 +3,6 @@
 Django DRF OIDC Auth library Securely authenticate users using OIDC in Django DRF. 
 It Supports Code Flow and Code Flow With PKCE. Easy integration with React Js or any front-end framework.
 
-**Below**: *Screenshot from the django admin*
-
-![Screenshot1][django_admin_1]
-![Screenshot2][django_admin_2]
-![Screenshot3][django_admin_3]
-
 ----
 # Installation
 
@@ -108,7 +102,7 @@ OIDC_ALLOW_UNSECURED_JWT = False # defalut False
 returning unsecured JWT tokens and RP wants to accept them.
 OIDC_TOKEN_USE_BASIC_AUTH = False # defalut False
 
-# you can map the info comming back fsrom IDP to user model
+# you can map the info comming back from the IDP to user model
 # defalut is {}
 OIDC_FIELD_MAPPING = {
     'field_in_my_user_model': 'field_in_in_oidc',
@@ -117,7 +111,16 @@ OIDC_FIELD_MAPPING = {
 }
 
 ```
+----
+# Django Admin
 
+To view the info or fields comming back from the IDP in order to do proper mapping for OIDC_FIELD_MAPPING, all the data saved under the user model as oidc extra data.
+
+**Below**: *Screenshot from the django admin*
+
+![Screenshot1][django_admin_1]
+![Screenshot2][django_admin_2]
+![Screenshot3][django_admin_3]
 ----
 # REST APIs
 The REST API to the OIDC DRF is described below.
@@ -202,8 +205,8 @@ The REST API to the OIDC DRF is described below.
     }
 
 
+[django_admin_1]: https://i.ibb.co/855dw0N/django-admin-1.png
+[django_admin_2]: https://i.ibb.co/LdmfNky/django-admin-2.png
+[django_admin_3]: https://i.ibb.co/J2rDkXS/django-admin-3.png
 
 
-[django_admin_1]: https://ibb.co/0nxWSPf
-[django_admin_2]: https://ibb.co/LnBL4GB
-[django_admin_3]: https://ibb.co/gR0CrsN
