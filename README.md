@@ -119,7 +119,9 @@ To view the info or fields comming back from the IDP in order to do proper mappi
 **Below**: *Screenshot from the django admin*
 
 ![Screenshot1][django_admin_1]
+
 ![Screenshot2][django_admin_2]
+
 ![Screenshot3][django_admin_3]
 ----
 # REST APIs
