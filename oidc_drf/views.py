@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.contrib import auth
-from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,10 +10,11 @@ from oidc_drf.utils import import_from_settings
 import requests
 
 
-from  oidc_drf.utils import generate_code_challenge
-
 class OIDCGenerateAuthenticationUrlView(APIView):
     permission_classes = [AllowAny]    
+    def login_failure(self,error_message,status):
+        return Response({"detail":error_message}, status=status)
+    
     def get(self, request):
 
         state = get_random_string(import_from_settings("OIDC_STATE_SIZE", 32))
@@ -32,7 +33,9 @@ class OIDCGenerateAuthenticationUrlView(APIView):
         
         if import_from_settings("OIDC_USE_NONCE", True):
             # nonce = get_random_string(import_from_settings("OIDC_NONCE_SIZE", 32))
-            nonce = request.GET.get('nonce')
+            nonce = request.GET.get('nonce',None)
+            if nonce == None:
+                return self.login_failure("missing nonce",status.HTTP_400_BAD_REQUEST)
             params.update({"nonce": nonce})
             # oidc_states.update({"nonce":nonce})
 
@@ -59,8 +62,12 @@ class OIDCGenerateAuthenticationUrlView(APIView):
 
             # Append code_challenge to authentication request parameters
             
-            code_challenge = request.GET.get('code_challenge')
-            code_challenge_method = request.GET.get('code_challenge_method')
+            code_challenge = request.GET.get('code_challenge',None)
+            code_challenge_method = request.GET.get('code_challenge_method',None)
+            if code_challenge == None:
+                return self.login_failure("missing code_challenge",status.HTTP_400_BAD_REQUEST)
+            if code_challenge_method == None:
+                return self.login_failure("missing code_challenge_method",status.HTTP_400_BAD_REQUEST)
             params.update(
                 {
                     "code_challenge": code_challenge,
@@ -81,9 +88,8 @@ class OIDCAuthenticationCallbackView(APIView):
     """OIDC client authentication callback HTTP endpoint"""
     permission_classes = [AllowAny]    
 
-    def login_failure(self):
-        return Response({"detail":"Login failed"}, status=status.HTTP_401_UNAUTHORIZED)
-
+    def login_failure(self,error_message,status):
+        return Response({"detail":error_message}, status=status)
 
     def login_success(self):   
         try:     
@@ -106,34 +112,50 @@ class OIDCAuthenticationCallbackView(APIView):
             return JsonResponse(data)
     
         except:
-            return self.login_failure()
+            return self.login_failure("Login failed",status.HTTP_401_UNAUTHORIZED)
 
 
     def post(self, request):
         """Callback handler for OIDC authorization code flow"""
+        data = request.data
+        
 
-        if "code" in request.GET and "state" in request.GET:
-
-            data = request.data
+        
+        if import_from_settings("OIDC_USE_PKCE", True):
+            code_verifier = data.get("code_verifier",None)
+            if code_verifier == None:
+                return self.login_failure("missing code_verifier",status.HTTP_400_BAD_REQUEST)
             
+        if import_from_settings("OIDC_USE_NONCE", True):
+            nonce = data.get("nonce",None)
+            if nonce == None:
+                return self.login_failure("missing nonce",status.HTTP_400_BAD_REQUEST)
+            
+        if "error" in request.GET:
+            return self.login_failure(request.GET.get("error_description"),status.HTTP_400_BAD_REQUEST)
+        
+        elif "code" in request.GET and "state" in request.GET:            
             kwargs = {
                 "request": request,
-                "nonce": data.get("nonce",""),
-                "code_verifier": data.get("code_verifier",""),
+                "nonce": data.get("nonce",None),
+                "code_verifier": data.get("code_verifier",None),
             }
-
             self.user = auth.authenticate(**kwargs)
             
             if self.user and self.user.is_active:
                 return self.login_success()
         
-        return self.login_failure()
+        return self.login_failure("Login failed",status.HTTP_401_UNAUTHORIZED)
 
 class OIDCLogoutView(APIView):
     permission_classes = [AllowAny]    
-
+    def login_failure(self,error_message,status):
+        return Response({"detail":error_message}, status=status)
+    
     def post(self, request):     
-        oidc_id_token = request.data.get('oidc_id_token', '')
+        oidc_id_token = request.data.get('oidc_id_token', None)
+        if oidc_id_token == None:
+            return self.login_failure("missing oidc_id_token",status.HTTP_400_BAD_REQUEST)
         if oidc_id_token:
 
             logout_endpoint = import_from_settings("OIDC_OP_LOGOUT_ENDPOINT", "")
@@ -164,13 +186,21 @@ class OIDCLogoutView(APIView):
 
 class OIDCRefreshTokenView(APIView):
     permission_classes = [AllowAny]    
-
+    def login_failure(self,error_message,status):
+        return Response({"detail":error_message}, status=status)
+    
     def post(self, request):     
         url = import_from_settings("OIDC_OP_TOKEN_ENDPOINT", "")
-        refresh_token = request.data.get("refresh",'')
-        code_verifier = request.data.get("code_verifier",'')
+        refresh_token = request.data.get("refresh",None)
+        code_verifier = request.data.get("code_verifier",None)
         client_secret = import_from_settings("OIDC_RP_CLIENT_SECRET", "")
         client_id = import_from_settings("OIDC_RP_CLIENT_ID", "")
+
+        if import_from_settings("OIDC_USE_PKCE", True) and code_verifier == None:
+            return self.login_failure("missing code_verifier",status.HTTP_400_BAD_REQUEST)
+            
+        if refresh_token == None:
+            return self.login_failure("missing code_verifier",status.HTTP_400_BAD_REQUEST)
 
         data = {
             "grant_type": "refresh_token",

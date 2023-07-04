@@ -63,7 +63,6 @@ class OIDCAuthenticationBackend(ModelBackend):
         self.UserModel = get_user_model()
 
     def authenticate(self,request, **kwargs):          
-        
         self.request = request
         if not self.request:
             return None
@@ -74,8 +73,6 @@ class OIDCAuthenticationBackend(ModelBackend):
         nonce = kwargs.pop("nonce", None)
         code_verifier = kwargs.pop("code_verifier", None)
         
-
-
         if not code or not state:
             return None
 
@@ -282,6 +279,7 @@ class OIDCAuthenticationBackend(ModelBackend):
                 "Login failed: No user with %s found, and " "OIDC_CREATE_USER is False",
                 self.describe_user_by_claims(user_info),
             )
+            
             return None
 
     def retrieve_matching_jwk(self, token):
