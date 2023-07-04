@@ -99,7 +99,6 @@ OIDC_USE_ENCODED_USERNAME = None # defalut None
 OIDC_CREATE_USER = True # defalut True, Enables or disables automatic user creation during authentication
 OIDC_VERIFY_KID = True # defalut True 
 OIDC_ALLOW_UNSECURED_JWT = False # defalut False
-returning unsecured JWT tokens and RP wants to accept them.
 OIDC_TOKEN_USE_BASIC_AUTH = False # defalut False
 
 # you can map the info comming back from the IDP to user model
