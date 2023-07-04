@@ -126,10 +126,6 @@ The REST API to the OIDC DRF is described below.
 
 ## AUTH ENDPOINT
 
-### Request
-
-`GET /oidc/auth/`
-
 **Note**
 
 If `OIDC_USE_PKCE` is set to `True`:
@@ -143,6 +139,9 @@ If `OIDC_USE_NONCE` is set to `True`:
 - You should save the `nonce` in local storage because it will be needed in the callback endpoint.
 
 Example request with parameters:
+### Request
+
+`GET /oidc/auth/`
 
     curl --location 'http://localhost:8000/oidc/auth?code_challenge=4qZTfBVpD5xkxUIw0srf5rVV5H418hr-xQJLAd4c2Ss&code_challenge_method=S256&nonce=cFYLOJXZ8CANDC1SdQbvfUobixJdgUIc'
 ### Response
@@ -154,19 +153,24 @@ Example request with parameters:
     
 ## CALLBACK ENDPOINT
 
-### Request
-
-`POST /oidc/callback/`
-
 **Note**
 
-If `OIDC_USE_PKCE` is set to `True`, you should include the "code_verifier" parameter in the request body.
+If `OIDC_USE_PKCE` is set to `True`:
 
-If `OIDC_USE_NONCE` is set to `True`, you should include the "nonce" parameter in the request body.
+- you should include the "code_verifier" parameter in the request body.
+
+If `OIDC_USE_NONCE` is set to `True`:
+
+- you should include the "nonce" parameter in the request body.
 
 Remember to pass all the parameters returned from the 'OIDC_AUTHENTICATION_SSO_CALLBACK_URL', such as `state`, `session_state`, and `code`, to the callback endpoint.
 
 Example request with parameters and request body:
+
+
+### Request
+
+`POST /oidc/callback/`
 
     curl --location 'http://localhost:8000/oidc/callback/?state=alksdfjlka&session_state=alsdjflajsdk&code=alsdjflaksdflkjls' \
     --header 'Content-Type: application/json' \
@@ -187,13 +191,13 @@ Example request with parameters and request body:
 
 ## REFRESH ENDPOINT
 
+**Note**
+
+If `OIDC_USE_PKCE` is set to `True`:
+- you should include the "code_verifier" parameter in the request body.
 ### Request
 
 `POST /oidc/refresh/`
-
-**Note**
-
-If `OIDC_USE_PKCE` is set to `True`, you should include the "code_verifier" parameter in the request body.
 
 Example request with request body:
 
