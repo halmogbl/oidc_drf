@@ -158,6 +158,16 @@ Example request with parameters:
 
 `POST /oidc/callback/`
 
+**Note**
+
+If `OIDC_USE_PKCE` is set to `True`, you should include the "code_verifier" parameter in the request body.
+
+If `OIDC_USE_NONCE` is set to `True`, you should include the "nonce" parameter in the request body.
+
+Remember to pass all the parameters returned from the 'OIDC_AUTHENTICATION_SSO_CALLBACK_URL', such as `state`, `session_state`, and `code`, to the callback endpoint.
+
+Example request with parameters and request body:
+
     curl --location 'http://localhost:8000/oidc/callback/?state=alksdfjlka&session_state=alsdjflajsdk&code=alsdjflaksdflkjls' \
     --header 'Content-Type: application/json' \
     --data '{
