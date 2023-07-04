@@ -18,7 +18,7 @@ class OIDCGenerateAuthenticationUrlView(APIView):
 
         state = get_random_string(import_from_settings("OIDC_STATE_SIZE", 32))
         auth_url = import_from_settings("OIDC_OP_AUTHORIZATION_ENDPOINT")
-        oidc_states = {}
+        # oidc_states = {}
 
         params ={
             "response_type":  'code',
@@ -31,30 +31,36 @@ class OIDCGenerateAuthenticationUrlView(APIView):
 
         
         if import_from_settings("OIDC_USE_NONCE", True):
-            nonce = get_random_string(import_from_settings("OIDC_NONCE_SIZE", 32))
+            # nonce = get_random_string(import_from_settings("OIDC_NONCE_SIZE", 32))
+            nonce = request.GET.get('nonce')
             params.update({"nonce": nonce})
-            oidc_states.update({"nonce":nonce})
+            # oidc_states.update({"nonce":nonce})
 
 
 
         if import_from_settings("OIDC_USE_PKCE", True):
-            code_verifier_length = import_from_settings("OIDC_PKCE_CODE_VERIFIER_SIZE", 64)
+            # code_verifier_length = import_from_settings("OIDC_PKCE_CODE_VERIFIER_SIZE", 64)
             # Check that code_verifier_length is between the min and max length
             # defined in https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
-            if not (43 <= code_verifier_length <= 128):
-                raise ValueError("code_verifier_length must be between 43 and 128")
+            # if not (43 <= code_verifier_length <= 128):
+            #     raise ValueError("code_verifier_length must be between 43 and 128")
 
             # Generate code_verifier and code_challenge pair
-            code_verifier = get_random_string(code_verifier_length)
-            oidc_states.update({"code_verifier":code_verifier})
-            code_challenge_method = import_from_settings(
-                "OIDC_PKCE_CODE_CHALLENGE_METHOD", "S256"
-            )
-            code_challenge = generate_code_challenge(
-                code_verifier, code_challenge_method
-            )
+            # code_verifier = get_random_string(code_verifier_length)
+
+
+            # oidc_states.update({"code_verifier":code_verifier})
+            # code_challenge_method = import_from_settings(
+            #     "OIDC_PKCE_CODE_CHALLENGE_METHOD", "S256"
+            # )
+            # code_challenge = generate_code_challenge(
+            #     code_verifier, code_challenge_method
+            # )
 
             # Append code_challenge to authentication request parameters
+            
+            code_challenge = request.GET.get('code_challenge')
+            code_challenge_method = request.GET.get('code_challenge_method')
             params.update(
                 {
                     "code_challenge": code_challenge,
@@ -68,8 +74,7 @@ class OIDCGenerateAuthenticationUrlView(APIView):
 
 
         return Response({
-            "redirect_url":redirect_url,
-            "oidc_states":oidc_states,
+            "redirect_url":redirect_url
             } )
 
 class OIDCAuthenticationCallbackView(APIView):

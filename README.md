@@ -130,16 +130,12 @@ The REST API to the OIDC DRF is described below.
 
 `GET /oidc/auth/`
 
-    curl --location 'http://localhost:8000/oidc/auth'
+    curl --location 'http://localhost:8000/oidc/auth?code_challenge=4qZTfBVpD5xkxUIw0srf5rVV5H418hr-xQJLAd4c2Ss&code_challenge_method=S256&nonce=cFYLOJXZ8CANDC1SdQbvfUobixJdgUIc'
 ### Response
 
     Status: 200 OK
     {
-        "redirect_url": "http://127.0.0.1:8080/realms/mol/protocol/openid-connect/auth?response_type=code&client_id=mowaamah&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback&scope=openid+email&state=rhG5l83rwd81SytApbl7MzrTDBFRXqbo&nonce=Pgsq3IlSLumPca81YjXc8ut03Oz7bPHA&code_challenge=OcDWjPAEzNI-mzrjSa2lKATcIH4oaXp7rpasc5CkRj0&code_challenge_method=S256",
-        "oidc_states": {
-            "nonce": "Pgsq3IlSLumPca81YjXc8ut03Oz7bPHA",
-            "code_verifier": "cNa9FYCujvVibPnosk1Fk3wvPPisaTjE8Ns83X0UcGsNlEfIUc3j49hFftYPEGAb"
-        }
+        "redirect_url": "http://127.0.0.1:8080/realms/mol/protocol/openid-connect/auth?response_type=code&client_id=mowaamah&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback&scope=openid+email&state=rhG5l83rwd81SytApbl7MzrTDBFRXqbo&nonce=cFYLOJXZ8CANDC1SdQbvfUobixJdgUIc&code_challenge=4qZTfBVpD5xkxUIw0srf5rVV5H418hr-xQJLAd4c2Ss0&code_challenge_method=S256"
     }
     
 ## CALLBACK ENDPOINT
@@ -151,7 +147,7 @@ The REST API to the OIDC DRF is described below.
     curl --location 'http://localhost:8000/oidc/callback/?state=alksdfjlka&session_state=alsdjflajsdk&code=alsdjflaksdflkjls' \
     --header 'Content-Type: application/json' \
     --data '{
-            "nonce": "Pgsq3IlSLumPca81YjXc8ut03Oz7bPHA",
+            "nonce": "cFYLOJXZ8CANDC1SdQbvfUobixJdgUIc",
             "code_verifier": "cNa9FYCujvVibPnosk1Fk3wvPPisaTjE8Ns83X0UcGsNlEfIUc3j49hFftYPEGAb"
     }'
 ### Response
