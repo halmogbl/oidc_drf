@@ -191,6 +191,12 @@ Example request with parameters and request body:
 
 `POST /oidc/refresh/`
 
+**Note**
+
+If `OIDC_USE_PKCE` is set to `True`, you should include the "code_verifier" parameter in the request body.
+
+Example request with request body:
+
     curl --location 'http://localhost:8000/oidc/refresh/' \
     --header 'Content-Type: application/json' \
     --data '{
