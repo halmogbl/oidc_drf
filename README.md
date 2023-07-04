@@ -130,6 +130,12 @@ The REST API to the OIDC DRF is described below.
 
 `GET /oidc/auth/`
 
+**Note: if OIDC_USE_PKCE = True**
+you should add code_challenge and code_challenge_method parameters to the auth endpoint. and you should save code_verifier in local storage because it will be needed in the callback and refresh endpints.
+
+**Note: if OIDC_USE_NONCE = True**
+you should add nonce parameters to the auth endpoint. and you should save nonce in local storage because it will be needed in the callback endpint.
+
     curl --location 'http://localhost:8000/oidc/auth?code_challenge=4qZTfBVpD5xkxUIw0srf5rVV5H418hr-xQJLAd4c2Ss&code_challenge_method=S256&nonce=cFYLOJXZ8CANDC1SdQbvfUobixJdgUIc'
 ### Response
 
