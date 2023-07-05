@@ -94,17 +94,17 @@ class OIDCAuthenticationCallbackView(APIView):
     def login_success(self):   
         try:     
             oidc_access_token = self.request.session["oidc_access_token"]
-            oidc_id_token = self.request.session["oidc_id_token"]
+            # oidc_id_token = self.request.session["oidc_id_token"]
             oidc_refresh_token = self.request.session["oidc_refresh_token"]
             
             data = {
                 'access': str(oidc_access_token),
                 'refresh': str(oidc_refresh_token),
-                'oidc_id_token': str(oidc_id_token),
+                # 'oidc_id_token': str(oidc_id_token),
             } 
             
             del self.request.session["oidc_access_token"]
-            del self.request.session["oidc_id_token"]
+            # del self.request.session["oidc_id_token"]
             del self.request.session["oidc_refresh_token"]
             self.request.session.save()
 
@@ -155,7 +155,7 @@ class OIDCLogoutView(APIView):
     def post(self, request):     
         client_id = import_from_settings("OIDC_RP_CLIENT_ID", "")
         client_secret = import_from_settings("OIDC_RP_CLIENT_SECRET", "")
-        refresh = request.data.get('oidc_id_token', None)
+        refresh = request.data.get('refresh', None)
         
         if refresh == None:
             return self.login_failure("missing refresh field",status.HTTP_400_BAD_REQUEST)
@@ -226,13 +226,13 @@ class OIDCRefreshTokenView(APIView):
                 return JsonResponse(error_data, status=response.status_code)
             
             oidc_access_token = json_data.get("access_token")
-            oidc_id_token = json_data.get("id_token")
+            # oidc_id_token = json_data.get("id_token")
             oidc_refresh_token = json_data.get("refresh_token")
             
             data = {
                 'access': str(oidc_access_token),
                 'refresh': str(oidc_refresh_token),
-                'oidc_id_token': str(oidc_id_token),
+                # 'oidc_id_token': str(oidc_id_token),
             }       
     
             return JsonResponse(data)
