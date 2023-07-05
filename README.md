@@ -35,7 +35,6 @@ OIDC_OP_USER_ENDPOINT = '' # required
 OIDC_OP_LOGOUT_ENDPOINT ='' # required
 
 OIDC_AUTHENTICATION_SSO_CALLBACK_URL = '' # required - identity provider will redirect you to this url after login
-OIDC_LOGOUT_REDIRECT_URL = '' # required - identity provider will redirect you to this url after logout
 
 # Django Rest Framework settings
 REST_FRAMEWORK = {
@@ -89,7 +88,7 @@ OIDC_USE_PKCE = True # defalut true
 
 OIDC_USERNAME_CLAIM = 'preferred_username' # defalut 'preferred_username'
 OIDC_RP_SIGN_ALGO = 'RS256' # defalut RS256
-OIDC_RP_SCOPES = 'openid email' # defalut openid email
+OIDC_RP_SCOPES = 'openid email profile' # defalut openid email profile
 OIDC_RP_IDP_SIGN_KEY = None # defalut None
 OIDC_VERIFY_SSL = True # defalut True
 OIDC_TIMEOUT = None # defalut None

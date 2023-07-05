@@ -135,7 +135,7 @@ class OIDCAuthenticationBackend(ModelBackend):
         """Verify the provided claims to decide if authentication should be allowed."""
 
         # Verify claims required by default configuration
-        scopes = import_from_settings("OIDC_RP_SCOPES", "openid email")
+        scopes = import_from_settings("OIDC_RP_SCOPES", "openid email profile")
         if "email" in scopes.split():
             return "email" in claims
 
