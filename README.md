@@ -232,7 +232,7 @@ Example request with request body:
 
     Status: 200 OK
     {
-        "message": "Logout OIDC successful"
+        "message": "Logout OIDC Successful"
     }
 
 
