@@ -153,35 +153,50 @@ class OIDCLogoutView(APIView):
         return Response({"detail":error_message}, status=status)
     
     def post(self, request):     
+        print("1")
         oidc_id_token = request.data.get('oidc_id_token', None)
+        print("2")
         if oidc_id_token == None:
+            print("3")
             return self.login_failure("missing oidc_id_token",status.HTTP_400_BAD_REQUEST)
         if oidc_id_token:
+            print("4")
 
             logout_endpoint = import_from_settings("OIDC_OP_LOGOUT_ENDPOINT", "")
+            print("5")
             post_logout_redirect_uri = import_from_settings("OIDC_LOGOUT_REDIRECT_URL", "http://localhost:3000")
+            print("6")
             
             headers = {
                 'Content-Type': 'application/x-www-form-urlencoded',
             }
+            print("7")
 
             data = {
                 'post_logout_redirect_uri': post_logout_redirect_uri,
                 'id_token_hint': oidc_id_token,
             }
+            print("8")
             response = requests.post(logout_endpoint, data=data, headers=headers)
+            print("9")
             
             if response.status_code != 200:
+                print("10")
                 error_message = response.json().get('error', 'Logout Request failed with status code: {}'.format(response.status_code))
+                print("11")
                 error_data = {
                     'error': error_message
                 }
+                print("12")
                 return JsonResponse(error_data, status=response.status_code)
 
         
+            print("13")
             if response.status_code == 204 or response.status_code == 200:
+                print("14")
                 return JsonResponse({'message': 'Logout OIDC successful'}, status=response.status_code)
             
+        print("15")
         return Response({"error":"user has not id token !!"}, status=status.HTTP_400_BAD_REQUEST)    
 
 class OIDCRefreshTokenView(APIView):
