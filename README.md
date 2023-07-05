@@ -138,6 +138,8 @@ If `OIDC_USE_NONCE` is set to `True`:
 
 ***To generate the `code_challenge` and `nonce`, refer to this JavaScript library: [oidc_pkce](https://github.com/halmogbl/oidc_pkce).***
 
+$\color{green}{test}$
+
 
 Example request with parameters:
 ### Request
