@@ -138,7 +138,7 @@ If `OIDC_USE_NONCE` is set to `True`:
 
 
 
-$\color{green}{***To generate the `code_challenge` and `nonce`, refer to this JavaScript library: [oidc_pkce](https://github.com/halmogbl/oidc_pkce).***}$
+$\color{green}{To generate the `code_challenge` and `nonce`, refer to this JavaScript library: [oidc_pkce](https://github.com/halmogbl/oidc_pkce).}$
 
 
 Example request with parameters:
