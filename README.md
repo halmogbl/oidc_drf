@@ -136,11 +136,8 @@ If `OIDC_USE_NONCE` is set to `True`:
 - You should add the `nonce` parameter to the authentication endpoint.
 - You should save the `nonce` in local storage because it will be needed in the callback endpoint.
 
+***To generate the `code_challenge` and `nonce`, refer to this JavaScript library: [oidc_pkce](https://github.com/halmogbl/oidc_pkce).***
 
-
-- ![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) `#f03c15`
-
-$${\color{green}***To generate the `code_challenge` and `nonce`, refer to this JavaScript library: [oidc_pkce](https://github.com/halmogbl/oidc_pkce).***}$$	
 
 Example request with parameters:
 ### Request
