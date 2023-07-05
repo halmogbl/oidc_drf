@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='oidc_drf',
-    version='1.2.16',
+    version='1.2.18',
     author='Hamad Almogbl',
     author_email='hamad.almogbl@gmail.com',
     description='Django DRF OIDC Auth library: Securely authenticate users using OIDC in Django DRF. Supports Code Flow and Code Flow With PKCE. Easy integration with React Js or any front-end framework.',
@@ -20,7 +20,10 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.10',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development :: Libraries :: Application Frameworks',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Security',
+
     ],
     install_requires=[
         "Django >= 3.2",

@@ -137,6 +137,8 @@ If `OIDC_USE_NONCE` is set to `True`:
 - You should add the `nonce` parameter to the authentication endpoint.
 - You should save the `nonce` in local storage because it will be needed in the callback endpoint.
 
+[JavaScript Library To Create PKCE & NONCE](https://github.com/halmogbl/oidc_pkce)
+
 Example request with parameters:
 ### Request
 
