@@ -175,7 +175,7 @@ class OIDCLogoutView(APIView):
             response = requests.post(logout_endpoint, data=data, headers=headers)
             
             if response.status_code == 204:
-                return JsonResponse({'message': 'Logout OIDC Successful'}, status=response.status_code)
+                return JsonResponse({'message': 'Logout OIDC Successful'}, status=status.HTTP_200_OK)
             else:
                 error_message = response.json().get('error', 'Logout Request failed with status code: {}'.format(response.status_code))
                 error_data = {
