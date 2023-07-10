@@ -28,7 +28,6 @@ Configure the following settings in your Django project's settings module:
 
 OIDC_RP_CLIENT_ID = '' # required
 OIDC_RP_CLIENT_SECRET = '' # optional if public client 
-OIDC_OP_JWKS_ENDPOINT = None # defalut None
 OIDC_OP_AUTHORIZATION_ENDPOINT = ''# required
 OIDC_OP_TOKEN_ENDPOINT = ''# required
 OIDC_OP_USER_ENDPOINT = '' # required
@@ -86,16 +85,20 @@ those settings are optional and populated with default values.
 OIDC_USE_NONCE = True # defalut true
 OIDC_USE_PKCE = True # defalut true
 
-OIDC_USERNAME_CLAIM = 'preferred_username' # defalut 'preferred_username'
-OIDC_RP_SIGN_ALGO = 'RS256' # defalut RS256
-OIDC_RP_SCOPES = 'openid email profile' # defalut openid email profile
+# For RS256 algorithm to work, you need to set either the OP signing key or the OP JWKS Endpoint.
 OIDC_RP_IDP_SIGN_KEY = None # defalut None
+OIDC_OP_JWKS_ENDPOINT = None # defalut None
+
+OIDC_USERNAME_CLAIM = 'preferred_username' # defalut 'preferred_username'
+OIDC_RP_SIGN_ALGO = 'HS256' # defalut HS256
+OIDC_RP_SCOPES = 'openid email profile' # defalut openid 
 OIDC_VERIFY_SSL = True # defalut True
 OIDC_TIMEOUT = None # defalut None
 OIDC_PROXY = None # defalut None
 OIDC_USERNAME_ALGO = None # defalut None
 OIDC_USE_ENCODED_USERNAME = None # defalut None
 OIDC_CREATE_USER = True # defalut True, Enables or disables automatic user creation during authentication
+OIDC_CHECK_USER_MODEL = True # defalut True, if it is set to false it can authenticated based on oidc without User
 OIDC_VERIFY_KID = True # defalut True 
 OIDC_ALLOW_UNSECURED_JWT = False # defalut False
 OIDC_TOKEN_USE_BASIC_AUTH = False # defalut False

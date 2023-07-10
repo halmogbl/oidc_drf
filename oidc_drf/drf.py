@@ -1,14 +1,14 @@
 import logging
+from requests.exceptions import HTTPError
 from rest_framework import exceptions
+from rest_framework import authentication, exceptions
 from django.core.exceptions import  SuspiciousOperation
 from django.utils.module_loading import import_string
-from requests.exceptions import HTTPError
 from django.conf import settings
-from rest_framework import authentication, exceptions
 from django.core.exceptions import ImproperlyConfigured, SuspiciousOperation
+from django.contrib.auth import get_backends
 from oidc_drf.utils import import_from_settings,parse_www_authenticate_header
 from oidc_drf.backends import OIDCAuthenticationBackend
-from django.contrib.auth import get_backends
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,6 +56,7 @@ class OIDCAuthentication(authentication.BaseAuthentication):
         if not access_token:
             return None
         try:
+            """ try other DEFAULT_AUTHENTICATION_CLASSES first """
             for auth_class in settings.REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES']:
                 auth_class_name = auth_class.split('.')[-1]
                 if auth_class_name != self.__class__.__name__:
@@ -64,7 +65,7 @@ class OIDCAuthentication(authentication.BaseAuthentication):
                     if user is not None:
                         return user
         except:
-
+            """ if did not authenticate try this (oidc_drf.drf.OIDCAuthentication) DEFAULT_AUTHENTICATION_CLASSES """
             try:
                 user = self.backend.get_or_create_user(access_token, None, None)
             except HTTPError as exc:

@@ -16,10 +16,8 @@ class OIDCGenerateAuthenticationUrlView(APIView):
         return Response({"detail":error_message}, status=status)
     
     def get(self, request):
-
         state = get_random_string(import_from_settings("OIDC_STATE_SIZE", 32))
         auth_url = import_from_settings("OIDC_OP_AUTHORIZATION_ENDPOINT")
-        # oidc_states = {}
 
         params ={
             "response_type":  'code',
@@ -29,39 +27,13 @@ class OIDCGenerateAuthenticationUrlView(APIView):
             "state":  state,
         }
         
-
-        
         if import_from_settings("OIDC_USE_NONCE", True):
-            # nonce = get_random_string(import_from_settings("OIDC_NONCE_SIZE", 32))
             nonce = request.GET.get('nonce',None)
             if nonce == None:
                 return self.login_failure("missing nonce",status.HTTP_400_BAD_REQUEST)
             params.update({"nonce": nonce})
-            # oidc_states.update({"nonce":nonce})
 
-
-
-        if import_from_settings("OIDC_USE_PKCE", True):
-            # code_verifier_length = import_from_settings("OIDC_PKCE_CODE_VERIFIER_SIZE", 64)
-            # Check that code_verifier_length is between the min and max length
-            # defined in https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
-            # if not (43 <= code_verifier_length <= 128):
-            #     raise ValueError("code_verifier_length must be between 43 and 128")
-
-            # Generate code_verifier and code_challenge pair
-            # code_verifier = get_random_string(code_verifier_length)
-
-
-            # oidc_states.update({"code_verifier":code_verifier})
-            # code_challenge_method = import_from_settings(
-            #     "OIDC_PKCE_CODE_CHALLENGE_METHOD", "S256"
-            # )
-            # code_challenge = generate_code_challenge(
-            #     code_verifier, code_challenge_method
-            # )
-
-            # Append code_challenge to authentication request parameters
-            
+        if import_from_settings("OIDC_USE_PKCE", True):            
             code_challenge = request.GET.get('code_challenge',None)
             code_challenge_method = request.GET.get('code_challenge_method',None)
             if code_challenge == None:
@@ -74,11 +46,8 @@ class OIDCGenerateAuthenticationUrlView(APIView):
                     "code_challenge_method": code_challenge_method,
                 })
             
-
-
         query = urlencode(params)
         redirect_url = "{url}?{query}".format(url=auth_url, query=query)
-
 
         return Response({
             "redirect_url":redirect_url
@@ -94,17 +63,14 @@ class OIDCAuthenticationCallbackView(APIView):
     def login_success(self):   
         try:     
             oidc_access_token = self.request.session["oidc_access_token"]
-            # oidc_id_token = self.request.session["oidc_id_token"]
             oidc_refresh_token = self.request.session["oidc_refresh_token"]
             
             data = {
                 'access': str(oidc_access_token),
                 'refresh': str(oidc_refresh_token),
-                # 'oidc_id_token': str(oidc_id_token),
             } 
             
             del self.request.session["oidc_access_token"]
-            # del self.request.session["oidc_id_token"]
             del self.request.session["oidc_refresh_token"]
             self.request.session.save()
 
@@ -114,12 +80,9 @@ class OIDCAuthenticationCallbackView(APIView):
         except:
             return self.login_failure("Login failed",status.HTTP_401_UNAUTHORIZED)
 
-
     def post(self, request):
         """Callback handler for OIDC authorization code flow"""
         data = request.data
-        
-
         
         if import_from_settings("OIDC_USE_PKCE", True):
             code_verifier = data.get("code_verifier",None)
@@ -141,7 +104,7 @@ class OIDCAuthenticationCallbackView(APIView):
                 "code_verifier": data.get("code_verifier",None),
             }
             self.user = auth.authenticate(**kwargs)
-            
+                        
             if self.user and self.user.is_active:
                 return self.login_success()
         
@@ -214,7 +177,6 @@ class OIDCRefreshTokenView(APIView):
         }
         
         try:
-
             response = requests.post(url, data=urlencode(data), headers=headers)
             json_data = response.json()
             
@@ -226,13 +188,11 @@ class OIDCRefreshTokenView(APIView):
                 return JsonResponse(error_data, status=response.status_code)
             
             oidc_access_token = json_data.get("access_token")
-            # oidc_id_token = json_data.get("id_token")
             oidc_refresh_token = json_data.get("refresh_token")
             
             data = {
                 'access': str(oidc_access_token),
                 'refresh': str(oidc_refresh_token),
-                # 'oidc_id_token': str(oidc_id_token),
             }       
     
             return JsonResponse(data)

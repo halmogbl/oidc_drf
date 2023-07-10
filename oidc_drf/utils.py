@@ -3,7 +3,9 @@ import josepy.b64
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 from urllib.request import parse_http_list, parse_keqv_list
-
+import base64
+import hashlib
+from django.utils.encoding import force_bytes, smart_str
 
 def absolutify(request, path):
     """Return the absolute URL of a path."""
@@ -65,3 +67,21 @@ def generate_code_challenge(code_verifier, method):
 
     else:
         raise ValueError("code challenge method must be 'plain' or 'S256'.")
+
+def default_username_algo(email):
+    """Generate username for the Django user.
+
+    :arg str/unicode email: the email address to use to generate a username
+
+    :returns: str/unicode
+
+    """
+    # bluntly stolen from django-browserid
+    # store the username as a base64 encoded sha224 of the email address
+    # this protects against data leakage because usernames are often
+    # treated as public identifiers (so we can't use the email address).
+    username = base64.urlsafe_b64encode(
+        hashlib.sha1(force_bytes(email)).digest()
+    ).rstrip(b"=")
+
+    return smart_str(username)
