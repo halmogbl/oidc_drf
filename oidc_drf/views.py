@@ -105,7 +105,7 @@ class OIDCAuthenticationCallbackView(APIView):
             }
             self.user = auth.authenticate(**kwargs)
                         
-            if self.user and self.user.is_active:
+            if self.user:
                 return self.login_success()
         
         return self.login_failure("Login failed",status.HTTP_401_UNAUTHORIZED)

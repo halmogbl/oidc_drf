@@ -52,6 +52,9 @@ class OIDCAuthenticationBackend(ModelBackend):
         self.OIDC_TOKEN_USE_BASIC_AUTH = import_from_settings("OIDC_TOKEN_USE_BASIC_AUTH", False)
         self.OIDC_CREATE_USER = import_from_settings("OIDC_CREATE_USER", True)
         self.OIDC_CHECK_USER_MODEL = import_from_settings("OIDC_CHECK_USER_MODEL", True)
+        self.OIDC_USER_CREATED_IS_ACTIVE = import_from_settings("OIDC_USER_CREATED_IS_ACTIVE", True)
+        self.OIDC_USER_CREATED_IS_SUPERUSER = import_from_settings("OIDC_USER_CREATED_IS_SUPERUSER", False)
+
         
         if self.OIDC_RP_SIGN_ALGO.startswith("RS") and (
             self.OIDC_RP_IDP_SIGN_KEY is None and self.OIDC_OP_JWKS_ENDPOINT is None
@@ -228,6 +231,9 @@ class OIDCAuthenticationBackend(ModelBackend):
         """Return object for a newly created user account."""
         username = self.get_username(claims)        
         user_fields = self.mapper(claims)
+        # Set is_active and is_superuser fields
+        user_fields['is_active'] = self.OIDC_USER_CREATED_IS_ACTIVE
+        user_fields['is_superuser'] = self.OIDC_USER_CREATED_IS_SUPERUSER
         user = self.UserModel(username, **user_fields)
         return user
     
