@@ -102,6 +102,8 @@ OIDC_CHECK_USER_MODEL = True # defalut True, if it is set to false it can authen
 OIDC_VERIFY_KID = True # defalut True 
 OIDC_ALLOW_UNSECURED_JWT = False # defalut False
 OIDC_TOKEN_USE_BASIC_AUTH = False # defalut False
+OIDC_USER_CREATED_IS_ACTIVE= True # defalut True created user by oidc is set to is_active True
+OIDC_USER_CREATED_IS_SUPERUSER= False# defalut False  created user by oidc is set to is_superuser False
 
 # you can map the info comming back from the IDP to user model
 # defalut is {}

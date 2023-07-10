@@ -231,9 +231,6 @@ class OIDCAuthenticationBackend(ModelBackend):
         """Return object for a newly created user account."""
         username = self.get_username(claims)        
         user_fields = self.mapper(claims)
-        # Set is_active and is_superuser fields
-        user_fields['is_active'] = self.OIDC_USER_CREATED_IS_ACTIVE
-        user_fields['is_superuser'] = self.OIDC_USER_CREATED_IS_SUPERUSER
         user = self.UserModel(username, **user_fields)
         return user
     
@@ -242,6 +239,9 @@ class OIDCAuthenticationBackend(ModelBackend):
         """Return object for a newly created user account."""
         username = self.get_username(claims)        
         user_fields = self.mapper(claims)
+        # Set is_active and is_superuser fields
+        user_fields['is_active'] = self.OIDC_USER_CREATED_IS_ACTIVE
+        user_fields['is_superuser'] = self.OIDC_USER_CREATED_IS_SUPERUSER
         user = self.UserModel.objects.create_user(username, **user_fields)
 
         return user
