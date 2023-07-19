@@ -18,6 +18,8 @@ from josepy.jws import JWS, Header
 from josepy.b64 import b64decode
 from josepy.jwk import JWK
 
+from requests.exceptions import ConnectionError, RequestException
+
 from oidc_drf.models import OIDCExtraData
 LOGGER = logging.getLogger(__name__)
 
@@ -52,8 +54,7 @@ class OIDCAuthenticationBackend(ModelBackend):
         self.OIDC_TOKEN_USE_BASIC_AUTH = import_from_settings("OIDC_TOKEN_USE_BASIC_AUTH", False)
         self.OIDC_CREATE_USER = import_from_settings("OIDC_CREATE_USER", True)
         self.OIDC_CHECK_USER_MODEL = import_from_settings("OIDC_CHECK_USER_MODEL", True)
-        self.OIDC_USER_CREATED_IS_ACTIVE = import_from_settings("OIDC_USER_CREATED_IS_ACTIVE", True)
-        self.OIDC_USER_CREATED_IS_SUPERUSER = import_from_settings("OIDC_USER_CREATED_IS_SUPERUSER", False)
+        self.OIDC_EXTRA_USER_FIELDS = import_from_settings("OIDC_EXTRA_USER_FIELDS", {})
 
         
         if self.OIDC_RP_SIGN_ALGO.startswith("RS") and (
@@ -66,47 +67,58 @@ class OIDCAuthenticationBackend(ModelBackend):
         self.request = request
         if not self.request:
             return None
-
-
-        state = self.request.GET.get("state")
-        code = self.request.GET.get("code")
-        nonce = kwargs.pop("nonce", None)
-        code_verifier = kwargs.pop("code_verifier", None)
         
-        if not code or not state:
-            return None
-
-        token_payload = {
-            "client_id": self.OIDC_RP_CLIENT_ID,
-            "client_secret": self.OIDC_RP_CLIENT_SECRET,
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri":self.OIDC_AUTHENTICATION_SSO_CALLBACK_URL,
-        }
-
-
-        # Send code_verifier with token request if using PKCE
-        if code_verifier is not None:
-            token_payload.update({"code_verifier": code_verifier})
-
-        # Get the token
-        token_info = self.get_token(token_payload)
-        id_token = token_info.get("id_token")
-        refresh_token = token_info.get("refresh_token")
-        access_token = token_info.get("access_token")
-        
-        
-        # Validate the token
-        payload = self.verify_token(id_token, nonce=nonce)
-                
-        if payload:
-            self.store_tokens(access_token, refresh_token)
-            try:
-                return self.get_or_create_user(access_token, id_token, payload)
-            except SuspiciousOperation as exc:
-                LOGGER.warning("failed to get or create user: %s", exc)
+        try:
+            state = self.request.GET.get("state")
+            code = self.request.GET.get("code")
+            nonce = kwargs.pop("nonce", None)
+            code_verifier = kwargs.pop("code_verifier", None)
+            
+            if not code or not state:
                 return None
-        return None       
+
+            token_payload = {
+                "client_id": self.OIDC_RP_CLIENT_ID,
+                "client_secret": self.OIDC_RP_CLIENT_SECRET,
+                "grant_type": "authorization_code",
+                "code": code,
+                "redirect_uri":self.OIDC_AUTHENTICATION_SSO_CALLBACK_URL,
+            }
+
+
+            # Send code_verifier with token request if using PKCE
+            if code_verifier is not None:
+                token_payload.update({"code_verifier": code_verifier})
+
+            # Get the token
+            token_info = self.get_token(token_payload)
+            id_token = token_info.get("id_token")
+            refresh_token = token_info.get("refresh_token")
+            access_token = token_info.get("access_token")
+            
+            
+            # Validate the token
+            payload = self.verify_token(id_token, nonce=nonce)
+                    
+            if payload:
+                self.store_tokens(access_token, refresh_token)
+                try:
+                    return self.get_or_create_user(access_token, id_token, payload)
+                except SuspiciousOperation as exc:
+                    LOGGER.warning("failed to get or create user: %s", exc)
+                    return None
+                
+        except ConnectionError as ce:
+            print("Connection error:", ce)
+            # Handle the connection error here, such as retrying or raising a custom exception.
+        except RequestException as re:
+            print("Request exception:", re)
+            # Handle other request exceptions here.
+        except Exception as e:
+            print("Other exception:", e)
+            # Handle other unexpected exceptions here.
+
+        return None  
      
     def get_or_create_user(self, access_token, id_token, payload):
         """Returns a User instance if 1 user is found. Creates a user if not found
@@ -239,11 +251,11 @@ class OIDCAuthenticationBackend(ModelBackend):
         """Return object for a newly created user account."""
         username = self.get_username(claims)        
         user_fields = self.mapper(claims)
-        # Set is_active and is_superuser fields
-        user_fields['is_active'] = self.OIDC_USER_CREATED_IS_ACTIVE
-        user_fields['is_superuser'] = self.OIDC_USER_CREATED_IS_SUPERUSER
-        user = self.UserModel.objects.create_user(username, **user_fields)
-
+                
+        # Add extra fields from settings to the user_fields dictionary
+        user_fields.update(self.OIDC_EXTRA_USER_FIELDS)
+        
+        user = self.UserModel.objects.create_user(username, **user_fields)        
         return user
     
     def create_user_json(self,user_info_json, access_token, id_token):
@@ -382,27 +394,36 @@ class OIDCAuthenticationBackend(ModelBackend):
     
     def get_token(self, payload):
         """Return token object as a dictionary."""
+        try:
+            auth = None
+            if self.OIDC_TOKEN_USE_BASIC_AUTH:
+                # When Basic auth is defined, create the Auth Header and remove secret from payload.
+                user = payload.get("client_id")
+                pw = payload.get("client_secret")
 
-        auth = None
-        if self.OIDC_TOKEN_USE_BASIC_AUTH:
-            # When Basic auth is defined, create the Auth Header and remove secret from payload.
-            user = payload.get("client_id")
-            pw = payload.get("client_secret")
+                auth = HTTPBasicAuth(user, pw)
+                del payload["client_secret"]
 
-            auth = HTTPBasicAuth(user, pw)
-            del payload["client_secret"]
+            response = requests.post(self.OIDC_OP_TOKEN_ENDPOINT,
+                data=payload,
+                auth=auth,
+                verify=self.OIDC_VERIFY_SSL,
+                timeout=self.OIDC_TIMEOUT,
+                proxies=self.OIDC_PROXY,
+            )
 
-        response = requests.post(self.OIDC_OP_TOKEN_ENDPOINT,
-            data=payload,
-            auth=auth,
-            verify=self.OIDC_VERIFY_SSL,
-            timeout=self.OIDC_TIMEOUT,
-            proxies=self.OIDC_PROXY,
-        )
-
-        response.raise_for_status()
-        
-        return response.json()
+            response.raise_for_status()
+            
+            return response.json()
+        except ConnectionError as ce:
+            print("Connection error:", ce)
+            # Handle the connection error here, such as retrying or raising a custom exception.
+        except RequestException as re:
+            print("Request exception:", re)
+            # Handle other request exceptions here.
+        except Exception as e:
+            print("Other exception:", e)
+        # Handle other unexpected exceptions here.
     
     def store_tokens(self, access_token, refresh_token):
         """Store access_token and refresh_token temperory."""

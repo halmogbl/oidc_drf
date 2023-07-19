@@ -113,6 +113,11 @@ OIDC_FIELD_MAPPING = {
     'last_name': 'family_name',
 }
 
+OIDC_EXTRA_USER_FIELDS = {
+    "is_active": True,
+    "is_superuser": False,
+    # Add more fields as needed
+}
 ```
 ----
 # Django Admin
